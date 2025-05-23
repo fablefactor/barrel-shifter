@@ -1,4 +1,3 @@
-```systemverilog
 // This file (bs_random_stimulus_sequence.sv) will be included within bs_test_pkg.sv.
 // It assumes bs_transaction type is available via prior include in the package.
 
@@ -66,4 +65,3 @@ class bs_random_stimulus_sequence #(
   endtask : body
 
 endclass : bs_random_stimulus_sequence
-```

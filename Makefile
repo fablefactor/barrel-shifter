@@ -1,4 +1,3 @@
-```makefile
 # Makefile for Barrel Shifter UVM Testbench
 
 # --- Variables ---
@@ -114,5 +113,3 @@ clean:
 # Placeholder for documentation generation if added later
 docs:
 	@echo "Documentation generation target exists, but not yet implemented."
-
-```

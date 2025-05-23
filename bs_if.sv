@@ -1,4 +1,3 @@
-```systemverilog
 interface bs_if #(parameter DATA_WIDTH = 32) (input logic clk);
 
   // DUT Signals
@@ -46,4 +45,3 @@ interface bs_if #(parameter DATA_WIDTH = 32) (input logic clk);
   );
 
 endinterface : bs_if
-```

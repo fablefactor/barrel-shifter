@@ -1,4 +1,3 @@
-```systemverilog
 // This file (bs_zero_shift_sequence.sv) will be included within bs_test_pkg.sv.
 
 class bs_zero_shift_sequence #(
@@ -38,4 +37,3 @@ class bs_zero_shift_sequence #(
   endtask
 
 endclass
-```

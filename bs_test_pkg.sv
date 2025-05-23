@@ -1,4 +1,3 @@
-```systemverilog
 package bs_test_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
@@ -29,4 +28,3 @@ package bs_test_pkg;
   `include "bs_max_stages_test.sv"
 
 endpackage
-```

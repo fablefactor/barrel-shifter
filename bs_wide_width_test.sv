@@ -1,4 +1,3 @@
-```systemverilog
 // This file (bs_wide_width_test.sv) will be included within bs_test_pkg.sv.
 
 class bs_wide_width_test extends barrel_shifter_base_test;
@@ -77,4 +76,3 @@ class bs_wide_width_test extends barrel_shifter_base_test;
   endtask
 
 endclass
-```

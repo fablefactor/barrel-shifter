@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -88,4 +87,3 @@ class bs_agent #(
     endfunction : connect_phase
 
 endclass : bs_agent
-```

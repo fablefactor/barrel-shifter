@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -21,4 +20,3 @@ class bs_sequencer #(
     endfunction : new
 
 endclass : bs_sequencer
-```

@@ -1,4 +1,3 @@
-```systemverilog
 // This file (bs_smoke_test.sv) will be included within bs_test_pkg.sv.
 // It assumes barrel_shifter_base_test, bs_env, and bs_random_stimulus_sequence types
 // are available via prior includes in the package.
@@ -74,4 +73,3 @@ class bs_smoke_test extends barrel_shifter_base_test;
   endtask
 
 endclass
-```

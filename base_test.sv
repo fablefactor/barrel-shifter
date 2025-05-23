@@ -1,4 +1,3 @@
-```systemverilog
 // This file (base_test.sv) will be included within bs_test_pkg.sv,
 // so uvm_pkg import and uvm_macros.svh include are via the package.
 // It assumes bs_env type is available via prior include in the package.
@@ -69,4 +68,3 @@ class barrel_shifter_base_test extends uvm_test;
   endfunction
 
 endclass
-```

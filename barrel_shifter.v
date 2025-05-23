@@ -1,4 +1,3 @@
-```verilog
 module barrel_shifter #(
     parameter DATA_WIDTH = 32,
     parameter NUM_STAGES = 1 // User-defined number of physical pipeline stages
@@ -101,4 +100,3 @@ module barrel_shifter #(
         end // end gen_data_width_general
     endgenerate
 endmodule
-```

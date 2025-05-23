@@ -1,4 +1,3 @@
-```systemverilog
 // This file (bs_full_rotate_sequence.sv) will be included within bs_test_pkg.sv.
 
 class bs_full_rotate_sequence #(
@@ -41,4 +40,3 @@ class bs_full_rotate_sequence #(
   endtask
 
 endclass
-```

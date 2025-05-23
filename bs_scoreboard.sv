@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -82,4 +81,3 @@ class bs_scoreboard #(
     endfunction : report_phase
 
 endclass : bs_scoreboard
-```

@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 import bs_test_pkg::*; // Includes all our UVM components and tests
@@ -65,4 +64,3 @@ module tb_top;
   end
 
 endmodule
-```

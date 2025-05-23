@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -115,4 +114,3 @@ class bs_transaction #(parameter DATA_WIDTH = 32) extends uvm_sequence_item;
   // endfunction : convert2string
 
 endclass : bs_transaction
-```

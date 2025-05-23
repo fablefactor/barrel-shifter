@@ -1,4 +1,3 @@
-```systemverilog
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
@@ -80,4 +79,3 @@ class bs_driver #(
     endtask : run_phase
 
 endclass : bs_driver
-```
