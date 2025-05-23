@@ -93,7 +93,7 @@ class bs_monitor #(
             // 3. If enough input transactions have been enqueued to cover the DUT's latency,
             //    then the oldest input transaction in our pipeline now has its corresponding output
             //    available at the DUT's output.
-            if (input_pipeline.size() > actual_monitor_latency) {
+            if (input_pipeline.size() > actual_monitor_latency) begin
                 // Retrieve the oldest input transaction (which entered the DUT 'actual_monitor_latency' cycles ago)
                 transaction_to_publish = input_pipeline.pop_front(); 
                 
@@ -102,7 +102,7 @@ class bs_monitor #(
 
                 `uvm_info(get_type_name(), $sformatf("Collected transaction: %s", transaction_to_publish.convert2string()), UVM_FULL);
                 item_collected_port.write(transaction_to_publish);
-            }
+            end
         end
     endtask : run_phase
 

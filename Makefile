@@ -21,7 +21,7 @@ SV_SOURCES = $(IF_FILES) $(UVM_PKG_FILES) $(TB_TOP_FILES)
 # VCS Compile Options
 # -lca for UVM/SystemVerilog link-time checks and optimizations.
 # -kdb for interactive debugging database (optional, good for Verdi).
-VCS_OPTS = -sverilog -ntb_opts uvm-1.2 -debug_acc+all -timescale=1ns/1ps -lca -kdb
+VCS_OPTS = -sverilog -ntb_opts uvm -debug_acc+all -timescale=1ns/1ps -lca -kdb
 VCS_COMPILE_LOG = compile.log
 
 # Simulation Run Options

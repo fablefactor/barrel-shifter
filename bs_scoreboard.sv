@@ -30,10 +30,10 @@ class bs_scoreboard #(
 
     // write method: Called when a transaction is received via item_analysis_export
     virtual function void write(bs_transaction#(DATA_WIDTH) trans);
-        if (trans == null) {
+        if (trans == null) begin
             `uvm_warning(get_type_name(), "Received null transaction in write method.")
             return;
-        }
+        end
 
         `uvm_info(get_type_name(), 
                   $sformatf("Comparing transaction: DataIn=0x%h, ShiftAmt=0x%h, Actual DO=0x%h, Expected DO=0x%h", 

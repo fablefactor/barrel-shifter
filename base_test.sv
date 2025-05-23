@@ -19,19 +19,19 @@ class barrel_shifter_base_test extends uvm_test;
     super.build_phase(phase);
 
     // Get DATA_WIDTH for the DUT
-    if (!uvm_config_db#(int)::get(this, "", "dut_data_width", cfg_dut_data_width)) {
+    if (!uvm_config_db#(int)::get(this, "", "dut_data_width", cfg_dut_data_width)) begin
       `uvm_info(get_type_name(), $sformatf("[%s] 'dut_data_width' not set via uvm_config_db. Using default: %0d.", current_test_name, cfg_dut_data_width), UVM_MEDIUM)
-    }
+    end
 
     // Get NUM_STAGES for the DUT (the Verilog module parameter)
-    if (!uvm_config_db#(int)::get(this, "", "dut_num_stages", cfg_dut_num_stages)) {
+    if (!uvm_config_db#(int)::get(this, "", "dut_num_stages", cfg_dut_num_stages)) begin
       `uvm_info(get_type_name(), $sformatf("[%s] 'dut_num_stages' not set via uvm_config_db. Using default: %0d.", current_test_name, cfg_dut_num_stages), UVM_MEDIUM)
-    }
+    end
 
     // Validate dut_data_width
-    if (cfg_dut_data_width <= 0) {
+    if (cfg_dut_data_width <= 0) begin
       `uvm_fatal(get_type_name(), $sformatf("[%s] Configured 'dut_data_width' (%0d) must be greater than 0.", current_test_name, cfg_dut_data_width))
-    }
+    end
     
     // dut_num_stages from DUT Verilog can be 0 (treated as 1 stage/cycle latency by DUT).
     // Calculate effective latency for the monitor based on DUT's NUM_STAGES parameter.

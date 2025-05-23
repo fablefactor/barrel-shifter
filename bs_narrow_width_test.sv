@@ -33,21 +33,21 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
     super.build_phase(phase); 
 
     // Get test-specific configuration for num_sequence_transactions
-    if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) {
+    if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) begin
       `uvm_info(get_type_name(), $sformatf("[%s] 'num_sequence_transactions' not set via uvm_config_db for test. Using default: %0d.", current_test_name, num_sequence_transactions), UVM_MEDIUM)
-    }
-    if (num_sequence_transactions <= 0) {
+    end
+    if (num_sequence_transactions <= 0) begin
         `uvm_warning(get_type_name(), $sformatf("[%s] 'num_sequence_transactions' (%0d) is invalid for test. Setting to 1.",current_test_name, num_sequence_transactions));
         num_sequence_transactions = 1;
-    }
+    end
 
     // Create the environment, specifically typed with parameters obtained from base class configuration.
     // cfg_dut_data_width will be THIS_TEST_DATA_WIDTH (8).
     // cfg_effective_latency will be derived from THIS_TEST_NUM_STAGES (e.g., 1 if THIS_TEST_NUM_STAGES is 1 or 0).
     m_env = bs_env#(cfg_dut_data_width, cfg_effective_latency)::type_id::create("env", this);
-    if (m_env == null) {
+    if (m_env == null) begin
       `uvm_fatal(get_type_name(), $sformatf("[%s] Environment creation failed for bs_env #(%0d, %0d).", current_test_name, cfg_dut_data_width, cfg_effective_latency))
-    }
+    end
     `uvm_info(get_type_name(), $sformatf("[%s] Successfully created bs_env #(%0d, %0d) for narrow width test.", current_test_name, cfg_dut_data_width, cfg_effective_latency), UVM_MEDIUM);
     
     `uvm_info(get_type_name(), $sformatf("[%s] Build phase finished.", current_test_name), UVM_MEDIUM)

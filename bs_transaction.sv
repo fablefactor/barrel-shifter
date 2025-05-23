@@ -20,7 +20,7 @@ class bs_transaction #(parameter DATA_WIDTH = 32) extends uvm_sequence_item;
     `uvm_field_int(shift_amount, UVM_ALL_ON)
     `uvm_field_int(data_out, UVM_ALL_ON | UVM_NOCOMPARE) // Captured by monitor, not for direct comparison here
     `uvm_field_int(expected_data_out, UVM_ALL_ON)      // Calculated, used for comparison by scoreboard
-  `uvm_object_param_utils_end
+  `uvm_object_utils_end
 
   // Constraints
   // If DATA_WIDTH is 1, shift_amount must be 0.

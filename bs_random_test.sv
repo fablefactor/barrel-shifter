@@ -29,9 +29,9 @@ class bs_random_test extends barrel_shifter_base_test;
     super.build_phase(phase); 
 
     // Get configuration specific to this random test for num_sequence_transactions
-    if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) {
+    if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) begin
       `uvm_info(get_type_name(), $sformatf("[%s] 'num_sequence_transactions' not set via uvm_config_db. Using default: %0d.", current_test_name, num_sequence_transactions), UVM_MEDIUM)
-    }
+    end
 
     if (num_sequence_transactions <= 0) begin
       `uvm_warning(get_type_name(), $sformatf("[%s] 'num_sequence_transactions' (%0d) is invalid. Setting to 1.", current_test_name, num_sequence_transactions))
