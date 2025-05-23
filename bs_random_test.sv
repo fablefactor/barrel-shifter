@@ -50,43 +50,57 @@ class bs_random_test extends barrel_shifter_base_test;
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    // Local, correctly-typed handle for the environment.
-    // Parameters come from the base class's configuration properties.
-    bs_env #(cfg_dut_data_width, cfg_effective_latency) typed_env_h; 
-    bs_random_stimulus_sequence#(cfg_dut_data_width) seq;
     string current_test_name = get_full_name();
+    uvm_sequence seq_h; // Generic handle for the sequence to be started
+    bs_random_stimulus_sequence#(cfg_dut_data_width) actual_random_seq;
+
+    uvm_component temp_agent_comp;
+    uvm_component temp_seqr_comp;
+    uvm_sequencer_base seqr_to_start_on; // Generic sequencer handle for seq_h.start()
 
     phase.raise_objection(this, {current_test_name, " starting run_phase"});
     `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. Will run %0d transactions.", current_test_name, num_sequence_transactions), UVM_MEDIUM)
 
-    // Safely cast the generic m_env (type uvm_env) to the specifically parameterized bs_env type.
-    // This is necessary to access its specific members like 'agent' with correct typing.
-    if (!$cast(typed_env_h, m_env)) begin
-      `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to cast generic m_env to specific bs_env #(%0d,%0d) type.", current_test_name, cfg_dut_data_width, cfg_effective_latency))
-      // No objection was raised by this task yet if fatal happens here, but good practice:
-      // phase.drop_objection(this, {current_test_name, " ending due to cast failure"}); 
-      return; // Exit if cast fails.
-    end
-
-    // Create and start the random stimulus sequence
-    // Parameterize sequence with cfg_dut_data_width from base class.
-    seq = bs_random_stimulus_sequence#(cfg_dut_data_width)::type_id::create("seq");
-    if (seq == null) begin
+    // Sequence Creation and Configuration
+    actual_random_seq = bs_random_stimulus_sequence#(cfg_dut_data_width)::type_id::create("seq");
+    if (actual_random_seq == null) begin
        `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to create bs_random_stimulus_sequence.", current_test_name))
-       // No objection raised by this task yet if fatal happens here.
+       phase.drop_objection(this, {current_test_name, " ending due to sequence creation failure"});
        return;
     end
-    
-    seq.num_transactions = this.num_sequence_transactions;
-    
-    if (typed_env_h.agent == null || typed_env_h.agent.sequencer == null) begin
-      `uvm_fatal(get_type_name(), $sformatf("[%s] Environment's agent or sequencer handle is null. Cannot start sequence.", current_test_name))
-      // No objection raised by this task yet.
-      return;
+    actual_random_seq.num_transactions = this.num_sequence_transactions;
+    if (!$cast(seq_h, actual_random_seq)) begin
+        `uvm_fatal(get_type_name(), $sformatf("Failed to cast actual_random_seq to uvm_sequence for starting. Type is %s", actual_random_seq.get_type_name()));
+        phase.drop_objection(this, {current_test_name, " ending due to sequence cast failure"});
+        return;
+    end
+
+    // Getting the Sequencer Handle
+    if (m_env == null) begin
+        `uvm_fatal(get_type_name(), $sformatf("[%s] m_env handle is null. Cannot get sequencer.", current_test_name));
+        phase.drop_objection(this, {current_test_name, " ending due to null m_env"});
+        return;
+    end
+    temp_agent_comp = m_env.get_child("agent");
+    if (temp_agent_comp == null) begin
+        `uvm_fatal(get_type_name(), $sformatf("[%s] Agent component not found under m_env. Path: %s", current_test_name, m_env.get_full_name()));
+        phase.drop_objection(this, {current_test_name, " ending due to null agent component"});
+        return;
+    end
+    temp_seqr_comp = temp_agent_comp.get_child("sequencer");
+    if (temp_seqr_comp == null) begin
+        `uvm_fatal(get_type_name(), $sformatf("[%s] Sequencer component not found under agent. Path: %s", current_test_name, temp_agent_comp.get_full_name()));
+        phase.drop_objection(this, {current_test_name, " ending due to null sequencer component"});
+        return;
+    end
+    if (!$cast(seqr_to_start_on, temp_seqr_comp)) begin
+        `uvm_fatal(get_type_name(), $sformatf("Failed to cast sequencer component (%s) to uvm_sequencer_base. Path: %s", temp_seqr_comp.get_type_name(), temp_seqr_comp.get_full_name()));
+        phase.drop_objection(this, {current_test_name, " ending due to sequencer cast failure"});
+        return;
     end
     
-    `uvm_info(get_type_name(), $sformatf("[%s] Starting sequence '%s' on sequencer: %s", current_test_name, seq.get_name(), typed_env_h.agent.sequencer.get_full_name()), UVM_HIGH);
-    seq.start(typed_env_h.agent.sequencer);
+    `uvm_info(get_type_name(), $sformatf("[%s] Starting sequence '%s' on sequencer: %s", current_test_name, seq_h.get_name(), seqr_to_start_on.get_full_name()), UVM_HIGH);
+    seq_h.start(seqr_to_start_on);
     
     // Add a delay that scales with the number of transactions and latency.
     // This is a fallback timeout; UVM objections from sequence/driver/monitor should ideally manage simulation time.

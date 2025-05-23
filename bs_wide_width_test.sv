@@ -38,16 +38,17 @@ class bs_wide_width_test extends barrel_shifter_base_test;
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    bs_env #(THIS_TEST_DATA_WIDTH, cfg_effective_latency) typed_env_h; 
+    localparam TEST_SPECIFIC_EFFECTIVE_LATENCY = (THIS_TEST_NUM_STAGES == 0) ? 1 : THIS_TEST_NUM_STAGES;
+    bs_env #(THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY) typed_env_h; 
     bs_random_stimulus_sequence#(THIS_TEST_DATA_WIDTH) seq;
     string current_test_name = get_full_name();
 
     phase.raise_objection(this, {current_test_name, " starting run_phase"});
-    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. DATA_WIDTH=%0d, LATENCY=%0d. Transactions=%0d.", 
-              current_test_name, THIS_TEST_DATA_WIDTH, cfg_effective_latency, num_sequence_transactions), UVM_MEDIUM)
+    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. DATA_WIDTH=%0d, TEST_NUM_STAGES=%0d (Effective Latency for env/monitor=%0d). Transactions=%0d.", 
+              current_test_name, THIS_TEST_DATA_WIDTH, THIS_TEST_NUM_STAGES, TEST_SPECIFIC_EFFECTIVE_LATENCY, num_sequence_transactions), UVM_MEDIUM)
 
     if (!$cast(typed_env_h, m_env)) {
-      `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to cast m_env to bs_env #(%0d,%0d).", current_test_name, THIS_TEST_DATA_WIDTH, cfg_effective_latency))
+      `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to cast m_env to bs_env #(%0d,%0d). Object is of type %s", current_test_name, THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY, m_env.get_type_name()))
       phase.drop_objection(this, {current_test_name, " ending due to cast failure"});
       return;
     }
