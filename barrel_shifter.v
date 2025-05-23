@@ -1,127 +1,104 @@
 ```verilog
 module barrel_shifter #(
     parameter DATA_WIDTH = 32,
-    parameter NUM_STAGES = 1
+    parameter NUM_STAGES = 1 // User-defined number of physical pipeline stages
 ) (
     input clk,
     input reset_n,
-    input [DATA_WIDTH-1:0] data_in,
-    input [$clog2(DATA_WIDTH)-1:0] shift_amount, // Width is 0 if DATA_WIDTH=1
+    // Robust shift_amount port width: min 1 bit wide (for DATA_WIDTH=1, SA_WIDTH becomes 1, port is [0:0])
+    input [(($clog2(DATA_WIDTH) > 0) ? $clog2(DATA_WIDTH) : 1)-1:0] shift_amount,
+    input [DATA_WIDTH-1:0] data_in, // Added data_in to port list
     output logic [DATA_WIDTH-1:0] data_out
 );
 
-    localparam SA_WIDTH = $clog2(DATA_WIDTH); // Shift Amount Width
+    // Ensure DATA_WIDTH is at least 1 for $clog2 calculations if it could be 0.
+    // However, tests should ensure DATA_WIDTH > 0.
+    localparam EFFECTIVE_DATA_WIDTH = (DATA_WIDTH == 0) ? 1 : DATA_WIDTH;
 
-    // Calculate bits of shift_amount to be handled by each stage
-    // If SA_WIDTH is 0 (for DATA_WIDTH=1), BITS_PER_STAGE will be 0 if NUM_STAGES >= 1
-    localparam BITS_PER_STAGE = (SA_WIDTH == 0) ? 0 : (SA_WIDTH + NUM_STAGES - 1) / NUM_STAGES;
+    // Robust SA_WIDTH: Minimum 1. For DATA_WIDTH=1, $clog2 is 0, so SA_WIDTH becomes 1.
+    localparam SA_WIDTH = (($clog2(EFFECTIVE_DATA_WIDTH) > 0) ? $clog2(EFFECTIVE_DATA_WIDTH) : 1);
 
-    // Intermediate registers for pipelining
-    // Stage 0 processes data_in, subsequent stages process output of previous stage.
-    logic [DATA_WIDTH-1:0] stage_data [NUM_STAGES-1:0];
+    // Effective number of physical pipeline stages. If user specifies 0, treat as 1.
+    localparam EFF_NUM_STAGES = (NUM_STAGES == 0) ? 1 : NUM_STAGES;
 
-    // Generate blocks for single vs. pipelined stages
     generate
-        if (NUM_STAGES == 0) begin : invalid_stages
-            // Assign a default value or raise an error if NUM_STAGES is 0,
-            // though parameters usually constrained to be > 0.
-            // For simplicity, treat as 1 stage if NUM_STAGES is set to 0.
-             always_ff @(posedge clk or negedge reset_n) begin
-                if (!reset_n) begin
-                    data_out <= {DATA_WIDTH{1'b0}};
-                end else begin
-                    if (SA_WIDTH == 0) begin // DATA_WIDTH = 1
-                        data_out <= data_in;
-                    end else begin
-                        data_out <= (data_in << shift_amount) | (data_in >> (DATA_WIDTH - shift_amount));
-                    end
-                end
-            end
-        end else if (NUM_STAGES == 1) begin : single_stage
-            // Single stage implementation (registered output)
+        if (EFFECTIVE_DATA_WIDTH == 1) begin : gen_data_width_one
+            // For DATA_WIDTH=1, shift_amount is [0:0]. RTL shift by SA[0] (0 or 1) on a single bit
+            // is effectively no change for rotation. Output is simply data_in pipelined.
+            logic [EFFECTIVE_DATA_WIDTH-1:0] pipe_reg_dw1 [EFF_NUM_STAGES-1:0];
+
             always_ff @(posedge clk or negedge reset_n) begin
                 if (!reset_n) begin
-                    data_out <= {DATA_WIDTH{1'b0}};
+                    for (int i = 0; i < EFF_NUM_STAGES; i++) begin
+                        pipe_reg_dw1[i] <= {EFFECTIVE_DATA_WIDTH{1'b0}};
+                    end
                 end else begin
-                    if (SA_WIDTH == 0) begin // DATA_WIDTH = 1
-                        data_out <= data_in; // No shift possible
-                    end else begin
-                        // Rotate left
-                        data_out <= (data_in << shift_amount) | (data_in >> (DATA_WIDTH - shift_amount));
+                    pipe_reg_dw1[0] <= data_in;
+                    for (int i = 1; i < EFF_NUM_STAGES; i++) begin
+                        pipe_reg_dw1[i] <= pipe_reg_dw1[i-1];
                     end
                 end
             end
-        end else begin : pipelined_stages
-            // Pipelined implementation
+            assign data_out = pipe_reg_dw1[EFF_NUM_STAGES-1];
 
-            // Function to get the portion of shift_amount for the current stage.
-            // This is the actual value by which this stage should shift.
-            function automatic [SA_WIDTH-1:0] get_stage_shift_val (input int stage_idx, input [SA_WIDTH-1:0] total_shift_amount);
-                int start_bit_idx;
-                int end_bit_idx;
-                logic [SA_WIDTH-1:0] extracted_val;
+        end else begin : gen_data_width_general // DATA_WIDTH > 1
+            
+            // Pipeline registers for physical stages
+            logic [DATA_WIDTH-1:0] pipe_reg [EFF_NUM_STAGES-1:0];
+            // Combinatorial result for each physical stage's logic
+            logic [DATA_WIDTH-1:0] comb_stage_output [EFF_NUM_STAGES-1:0];
 
-                if (SA_WIDTH == 0 || BITS_PER_STAGE == 0) begin
-                    return {SA_WIDTH{1'b0}}; // No shift if data width is 1 or no bits per stage
-                end
+            // Generate combinatorial logic for each physical stage
+            genvar p_idx; // Physical stage index
+            for (p_idx = 0; p_idx < EFF_NUM_STAGES; p_idx++) begin : gen_physical_stage_logic
+                always_comb begin
+                    logic [DATA_WIDTH-1:0] current_data_bus;
+                    logic [DATA_WIDTH-1:0] result_this_physical_stage;
 
-                start_bit_idx = stage_idx * BITS_PER_STAGE;
+                    // Determine input to this physical stage's combinatorial logic
+                    current_data_bus = (p_idx == 0) ? data_in : pipe_reg[p_idx-1];
+                    result_this_physical_stage = current_data_bus; // Initialize with input data
 
-                // If this stage is beyond the bits of total_shift_amount, it shifts by 0
-                if (start_bit_idx >= SA_WIDTH) begin
-                    return {SA_WIDTH{1'b0}};
-                end
-
-                end_bit_idx = start_bit_idx + BITS_PER_STAGE - 1;
-                if (end_bit_idx >= SA_WIDTH) begin
-                    end_bit_idx = SA_WIDTH - 1;
-                end
-                
-                // Extract the relevant bits from total_shift_amount
-                // e.g. total_shift_amount = 5'b10110 (22), stage_idx=0, BITS_PER_STAGE=3.
-                // start_bit_idx = 0, end_bit_idx = 2. We need total_shift_amount[2:0] = 3'b110 (6)
-                extracted_val = total_shift_amount[end_bit_idx : start_bit_idx];
-                return extracted_val;
-            endfunction
-
-            always_ff @(posedge clk or negedge reset_n) begin : pipeline_logic
-                if (!reset_n) begin
-                    for (int j = 0; j < NUM_STAGES; j++) begin
-                        stage_data[j] <= {DATA_WIDTH{1'b0}};
-                    end
-                    data_out <= {DATA_WIDTH{1'b0}};
-                end else begin
-                    logic [DATA_WIDTH-1:0] current_data_in;
-                    logic [SA_WIDTH-1:0] current_stage_actual_shift;
-
-                    // Stage 0
-                    current_data_in = data_in;
-                    if (SA_WIDTH == 0) begin // DATA_WIDTH = 1
-                        current_stage_actual_shift = {SA_WIDTH{1'b0}}; // Effectively no shift
-                        stage_data[0] <= current_data_in;
-                    end else begin
-                        current_stage_actual_shift = get_stage_shift_val(0, shift_amount);
-                        // Perform rotation for this stage
-                        stage_data[0] <= (current_data_in << current_stage_actual_shift) | (current_data_in >> (DATA_WIDTH - current_stage_actual_shift));
-                    end
-
-                    // Subsequent stages
-                    for (int j = 1; j < NUM_STAGES; j++) begin
-                        current_data_in = stage_data[j-1];
-                        if (SA_WIDTH == 0) begin // Should not be strictly necessary here if stage_data[0] is set correctly
-                             current_stage_actual_shift = {SA_WIDTH{1'b0}};
-                             stage_data[j] <= current_data_in;
-                        end else begin
-                            current_stage_actual_shift = get_stage_shift_val(j, shift_amount);
-                            // Perform rotation for this stage
-                            stage_data[j] <= (current_data_in << current_stage_actual_shift) | (current_data_in >> (DATA_WIDTH - current_stage_actual_shift));
+                    // Determine which logical stages (bits of shift_amount) this physical stage handles.
+                    // num_logical_stages is SA_WIDTH (since DATA_WIDTH > 1 here).
+                    // Distribute SA_WIDTH logical operations among EFF_NUM_STAGES physical stages.
+                    int ops_this_stage = (SA_WIDTH / EFF_NUM_STAGES) + ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? 1 : 0);
+                    int start_logical_stage_idx = (p_idx * (SA_WIDTH / EFF_NUM_STAGES)) + 
+                                                  ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? p_idx : (SA_WIDTH % EFF_NUM_STAGES));
+                    
+                    for (int k = 0; k < ops_this_stage; k++) begin
+                        int current_logical_stage_idx = start_logical_stage_idx + k;
+                        // This check should ideally not be needed if ops distribution is correct
+                        if (current_logical_stage_idx < SA_WIDTH) begin 
+                            if (shift_amount[current_logical_stage_idx]) begin
+                                int shift_val_this_logical_stage = 1 << current_logical_stage_idx;
+                                // Perform rotation
+                                result_this_physical_stage = (result_this_physical_stage << shift_val_this_logical_stage) | 
+                                                             (result_this_physical_stage >> (DATA_WIDTH - shift_val_this_logical_stage));
+                            end
                         end
                     end
-                    data_out <= stage_data[NUM_STAGES-1];
+                    comb_stage_output[p_idx] = result_this_physical_stage;
                 end
             end
-        end
-    endgenerate
 
+            // Pipeline registers: Register the output of each physical stage's combinatorial logic
+            always_ff @(posedge clk or negedge reset_n) begin
+                if (!reset_n) begin
+                    for (int i = 0; i < EFF_NUM_STAGES; i++) begin
+                        pipe_reg[i] <= {DATA_WIDTH{1'b0}};
+                    end
+                end else begin
+                    for (int i = 0; i < EFF_NUM_STAGES; i++) begin
+                        pipe_reg[i] <= comb_stage_output[i];
+                    end
+                end
+            end
+
+            // Assign final output from the last pipeline stage
+            assign data_out = pipe_reg[EFF_NUM_STAGES-1];
+
+        end // end gen_data_width_general
+    endgenerate
 endmodule
 ```
