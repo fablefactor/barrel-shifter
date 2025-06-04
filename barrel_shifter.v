@@ -41,7 +41,7 @@ module barrel_shifter #(
             assign data_out = pipe_reg_dw1[EFF_NUM_STAGES-1];
 
         end else begin : gen_data_width_general // DATA_WIDTH > 1
-            
+
             // Pipeline registers for physical stages
             logic [DATA_WIDTH-1:0] pipe_reg [EFF_NUM_STAGES-1:0];
             // Combinatorial result for each physical stage's logic
@@ -50,29 +50,26 @@ module barrel_shifter #(
             // Generate combinatorial logic for each physical stage
             genvar p_idx; // Physical stage index
             for (p_idx = 0; p_idx < EFF_NUM_STAGES; p_idx++) begin : gen_physical_stage_logic
+                localparam int OPS_THIS_STAGE = (SA_WIDTH / EFF_NUM_STAGES) + ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? 1 : 0);
+                localparam int START_LOGICAL_STAGE_IDX = (p_idx * (SA_WIDTH / EFF_NUM_STAGES)) +
+                                                     ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? p_idx : (SA_WIDTH % EFF_NUM_STAGES));
+
                 always_comb begin
-                    logic [DATA_WIDTH-1:0] current_data_bus;
-                    logic [DATA_WIDTH-1:0] result_this_physical_stage;
+                    automatic logic [DATA_WIDTH-1:0] current_data_bus;
+                    automatic logic [DATA_WIDTH-1:0] result_this_physical_stage;
 
                     // Determine input to this physical stage's combinatorial logic
                     current_data_bus = (p_idx == 0) ? data_in : pipe_reg[p_idx-1];
                     result_this_physical_stage = current_data_bus; // Initialize with input data
 
-                    // Determine which logical stages (bits of shift_amount) this physical stage handles.
-                    // num_logical_stages is SA_WIDTH (since DATA_WIDTH > 1 here).
-                    // Distribute SA_WIDTH logical operations among EFF_NUM_STAGES physical stages.
-                    int ops_this_stage = (SA_WIDTH / EFF_NUM_STAGES) + ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? 1 : 0);
-                    int start_logical_stage_idx = (p_idx * (SA_WIDTH / EFF_NUM_STAGES)) + 
-                                                  ((p_idx < (SA_WIDTH % EFF_NUM_STAGES)) ? p_idx : (SA_WIDTH % EFF_NUM_STAGES));
-                    
-                    for (int k = 0; k < ops_this_stage; k++) begin
-                        int current_logical_stage_idx = start_logical_stage_idx + k;
+                    for (int k = 0; k < OPS_THIS_STAGE; k++) begin
+                        automatic int current_logical_stage_idx = START_LOGICAL_STAGE_IDX + k;
                         // This check should ideally not be needed if ops distribution is correct
-                        if (current_logical_stage_idx < SA_WIDTH) begin 
+                        if (current_logical_stage_idx < SA_WIDTH) begin
                             if (shift_amount[current_logical_stage_idx]) begin
-                                int shift_val_this_logical_stage = 1 << current_logical_stage_idx;
+                                automatic int shift_val_this_logical_stage = 1 << current_logical_stage_idx;
                                 // Perform rotation
-                                result_this_physical_stage = (result_this_physical_stage << shift_val_this_logical_stage) | 
+                                result_this_physical_stage = (result_this_physical_stage << shift_val_this_logical_stage) |
                                                              (result_this_physical_stage >> (DATA_WIDTH - shift_val_this_logical_stage));
                             end
                         end

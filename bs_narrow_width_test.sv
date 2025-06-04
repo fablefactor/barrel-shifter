@@ -30,7 +30,7 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
     // - this.cfg_dut_data_width (will be THIS_TEST_DATA_WIDTH)
     // - this.cfg_dut_num_stages (will be THIS_TEST_NUM_STAGES)
     // - this.cfg_effective_latency (derived from THIS_TEST_NUM_STAGES)
-    super.build_phase(phase); 
+    super.build_phase(phase);
 
     // Get test-specific configuration for num_sequence_transactions
     if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) begin
@@ -49,7 +49,7 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
       `uvm_fatal(get_type_name(), $sformatf("[%s] Environment creation failed for bs_env #(%0d, %0d).", current_test_name, cfg_dut_data_width, cfg_effective_latency))
     end
     `uvm_info(get_type_name(), $sformatf("[%s] Successfully created bs_env #(%0d, %0d) for narrow width test.", current_test_name, cfg_dut_data_width, cfg_effective_latency), UVM_MEDIUM);
-    
+
     `uvm_info(get_type_name(), $sformatf("[%s] Build phase finished.", current_test_name), UVM_MEDIUM)
   endfunction
 
@@ -59,19 +59,19 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
 
     // Local handle, correctly typed to match the created environment's parameterization.
     // THIS_TEST_DATA_WIDTH is const. TEST_SPECIFIC_EFFECTIVE_LATENCY is const.
-    bs_env #(THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY) typed_env_h; 
+    bs_env #(THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY) typed_env_h;
     bs_random_stimulus_sequence#(THIS_TEST_DATA_WIDTH) seq;
     string current_test_name = get_full_name();
 
     phase.raise_objection(this, {current_test_name, " starting run_phase"});
-    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. DATA_WIDTH=%0d, TEST_NUM_STAGES=%0d (Effective Latency for env/monitor=%0d). Transactions=%0d.", 
+    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. DATA_WIDTH=%0d, TEST_NUM_STAGES=%0d (Effective Latency for env/monitor=%0d). Transactions=%0d.",
               current_test_name, THIS_TEST_DATA_WIDTH, THIS_TEST_NUM_STAGES, TEST_SPECIFIC_EFFECTIVE_LATENCY, num_sequence_transactions), UVM_MEDIUM)
 
     // Safely cast the generic m_env (type uvm_env) to the specifically parameterized bs_env type.
     if (!$cast(typed_env_h, m_env)) {
       `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to cast m_env to bs_env #(%0d,%0d). Object is of type %s", current_test_name, THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY, m_env.get_type_name()))
       phase.drop_objection(this, {current_test_name, " ending due to cast failure"}); // Drop objection before exiting
-      return; 
+      return;
     }
 
     // Create and start the random stimulus sequence, parameterized with THIS_TEST_DATA_WIDTH.
@@ -81,21 +81,21 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
        phase.drop_objection(this, {current_test_name, " ending due to sequence creation failure"}); // Drop objection
        return;
     }
-    
+
     seq.num_transactions = this.num_sequence_transactions;
-    
+
     if (typed_env_h.agent == null || typed_env_h.agent.sequencer == null) {
       `uvm_fatal(get_type_name(), $sformatf("[%s] Environment's agent or sequencer handle is null. Cannot start sequence.", current_test_name))
       phase.drop_objection(this, {current_test_name, " ending due to null agent/sequencer"}); // Drop objection
       return;
     }
-    
+
     `uvm_info(get_type_name(), $sformatf("[%s] Starting sequence '%s' on sequencer: %s", current_test_name, seq.get_name(), typed_env_h.agent.sequencer.get_full_name()), UVM_HIGH);
     seq.start(typed_env_h.agent.sequencer);
-    
+
     // Fallback timeout delay
-    #(uint'(num_sequence_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns); 
-    
+    #(uint'(num_sequence_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns);
+
     `uvm_info(get_type_name(), $sformatf("[%s] Run phase finishing.", current_test_name), UVM_MEDIUM)
     phase.drop_objection(this, {current_test_name, " finishing run_phase"});
   endtask

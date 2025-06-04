@@ -7,11 +7,11 @@ class bs_random_test extends barrel_shifter_base_test;
 
   // Generic environment handle.
   // The actual environment created will be bs_env#(cfg_dut_data_width, cfg_effective_latency)
-  uvm_env m_env; 
+  uvm_env m_env;
 
   // Configuration for the number of transactions this test will run.
   // Can be overridden by uvm_config_db#(int)::set(this, "num_sequence_transactions", <value>);
-  int num_sequence_transactions = 100; 
+  int num_sequence_transactions = 100;
 
   function new(string name = "bs_random_test", uvm_component parent = null);
     super.new(name, parent);
@@ -26,7 +26,7 @@ class bs_random_test extends barrel_shifter_base_test;
     // - this.cfg_dut_data_width
     // - this.cfg_dut_num_stages
     // - this.cfg_effective_latency
-    super.build_phase(phase); 
+    super.build_phase(phase);
 
     // Get configuration specific to this random test for num_sequence_transactions
     if (!uvm_config_db#(int)::get(this, "", "num_sequence_transactions", num_sequence_transactions)) begin
@@ -45,7 +45,7 @@ class bs_random_test extends barrel_shifter_base_test;
       `uvm_fatal(get_type_name(), $sformatf("[%s] Environment creation failed for bs_env #(%0d, %0d).", current_test_name, cfg_dut_data_width, cfg_effective_latency))
     end
     `uvm_info(get_type_name(), $sformatf("[%s] Successfully created bs_env #(%0d, %0d).", current_test_name, cfg_dut_data_width, cfg_effective_latency), UVM_MEDIUM);
-    
+
     `uvm_info(get_type_name(), $sformatf("[%s] Build phase finished.", current_test_name), UVM_MEDIUM)
   endfunction
 
@@ -98,15 +98,15 @@ class bs_random_test extends barrel_shifter_base_test;
         phase.drop_objection(this, {current_test_name, " ending due to sequencer cast failure"});
         return;
     end
-    
+
     `uvm_info(get_type_name(), $sformatf("[%s] Starting sequence '%s' on sequencer: %s", current_test_name, seq_h.get_name(), seqr_to_start_on.get_full_name()), UVM_HIGH);
     seq_h.start(seqr_to_start_on);
-    
+
     // Add a delay that scales with the number of transactions and latency.
     // This is a fallback timeout; UVM objections from sequence/driver/monitor should ideally manage simulation time.
     // Ensure factors are uint to prevent overflow in calculation if num_transactions is very large.
-    #(uint'(num_sequence_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns); 
-    
+    #(uint'(num_sequence_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns);
+
     `uvm_info(get_type_name(), $sformatf("[%s] Run phase finishing.", current_test_name), UVM_MEDIUM)
     phase.drop_objection(this, {current_test_name, " finishing run_phase"});
   endtask

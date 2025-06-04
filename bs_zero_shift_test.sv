@@ -39,7 +39,7 @@ class bs_zero_shift_test extends barrel_shifter_base_test;
     uvm_sequencer_base seqr_to_start_on; // Generic sequencer handle for seq_h.start()
 
     phase.raise_objection(this, {current_test_name, " starting run_phase"});
-    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. Transactions=%0d.", 
+    `uvm_info(get_type_name(), $sformatf("[%s] Run phase starting. Transactions=%0d.",
               current_test_name, num_zero_shift_transactions), UVM_MEDIUM)
 
     // Sequence Creation and Configuration
@@ -79,11 +79,11 @@ class bs_zero_shift_test extends barrel_shifter_base_test;
         phase.drop_objection(this, {current_test_name, " ending due to sequencer cast failure"});
         return;
     end
-    
+
     seq_h.start(seqr_to_start_on);
-    
-    #(uint'(num_zero_shift_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns); 
-    
+
+    #(uint'(num_zero_shift_transactions) * uint'(cfg_effective_latency) * 20ns + 500ns);
+
     `uvm_info(get_type_name(), $sformatf("[%s] Run phase finishing.", current_test_name), UVM_MEDIUM)
     phase.drop_objection(this, {current_test_name, " finishing run_phase"});
   endtask

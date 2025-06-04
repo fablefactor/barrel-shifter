@@ -60,7 +60,7 @@ class bs_monitor #(
         // Wait for reset_n to be high at a positive clock edge.
         @(posedge vif.clk iff vif.reset_n === 1'b1);
         // Optional: Add a few cycle delays if DUT reset propagation is slow or other stabilization needed.
-        // repeat(2) @(vif.tb_cb); 
+        // repeat(2) @(vif.tb_cb);
 
         `uvm_info(get_type_name(), "Monitoring started after reset.", UVM_MEDIUM)
 
@@ -81,7 +81,7 @@ class bs_monitor #(
             current_inputs_capture_tr = bs_transaction#(DATA_WIDTH)::type_id::create("monitor_input_capture_tr");
             current_inputs_capture_tr.data_in = vif.tb_cb.data_in;
             current_inputs_capture_tr.shift_amount = vif.tb_cb.shift_amount;
-            
+
             // Call post_randomize to calculate expected_data_out based on these inputs.
             // This is useful if convert2string prints it or for early debug.
             // The scoreboard will be the ultimate verifier of expected vs. actual.
@@ -95,8 +95,8 @@ class bs_monitor #(
             //    available at the DUT's output.
             if (input_pipeline.size() > actual_monitor_latency) begin
                 // Retrieve the oldest input transaction (which entered the DUT 'actual_monitor_latency' cycles ago)
-                transaction_to_publish = input_pipeline.pop_front(); 
-                
+                transaction_to_publish = input_pipeline.pop_front();
+
                 // Assign the currently observed DUT output to this past transaction
                 transaction_to_publish.data_out = vif.tb_cb.data_out;
 

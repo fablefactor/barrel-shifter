@@ -6,7 +6,7 @@ class bs_zero_shift_sequence #(
 
   `uvm_object_param_utils(bs_zero_shift_sequence#(DATA_WIDTH))
 
-  int num_transactions = 10; 
+  int num_transactions = 10;
   // Constraint for shift_amount = 0 is applied directly in randomize() call.
 
   function new(string name = "bs_zero_shift_sequence");
@@ -15,7 +15,7 @@ class bs_zero_shift_sequence #(
 
   virtual task body();
     bs_transaction#(DATA_WIDTH) m_req;
-    
+
     if (num_transactions <= 0) begin
       `uvm_warning(get_type_name(), $sformatf("num_transactions is %0d, sequence will not send any items.", num_transactions))
       return;

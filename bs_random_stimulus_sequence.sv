@@ -11,7 +11,7 @@ class bs_random_stimulus_sequence #(
   // This can be set by the test using uvm_config_db or direct assignment
   // before starting the sequence. For direct assignment, it shouldn't be rand.
   // If it were to be randomized by a parent sequence, it should be `rand int num_transactions;`
-  int num_transactions = 10; 
+  int num_transactions = 10;
 
   function new(string name = "bs_random_stimulus_sequence");
     super.new(name);
@@ -21,8 +21,8 @@ class bs_random_stimulus_sequence #(
     // Transaction handle; uvm_do will create an object if m_req is null,
     // or use the existing object if m_req is already created (not typical for uvm_do).
     // Declaring it here ensures a new object per `uvm_do` iteration if not using `uvm_do_on_thy_object`.
-    bs_transaction#(DATA_WIDTH) m_req; 
-    
+    bs_transaction#(DATA_WIDTH) m_req;
+
     if (num_transactions <= 0) begin
       `uvm_warning(get_type_name(), $sformatf("num_transactions is %0d, sequence will not send any items.", num_transactions))
       return;
@@ -42,8 +42,8 @@ class bs_random_stimulus_sequence #(
       // 2. Calls start_item(m_req)
       // 3. Randomizes m_req
       // 4. Calls finish_item(m_req)
-      `uvm_do(m_req) 
-      
+      `uvm_do(m_req)
+
       // Example of explicit control with logging:
       // begin
       //   `uvm_create(m_req); // Factory create
@@ -51,11 +51,11 @@ class bs_random_stimulus_sequence #(
       //   if (!m_req.randomize()) begin
       //     `uvm_error(get_type_name(), "Failed to randomize transaction")
       //   end else begin
-      //      `uvm_info(get_type_name(), 
-      //                $sformatf("Generated and sending transaction (%0d/%0d): %s", 
+      //      `uvm_info(get_type_name(),
+      //                $sformatf("Generated and sending transaction (%0d/%0d): %s",
       //                          // Need a loop counter 'i' for this specific logging
       //                          // For example, if using a for loop: i+1, num_transactions,
-      //                          m_req.convert2string()), 
+      //                          m_req.convert2string()),
       //                UVM_HIGH) // UVM_HIGH for potentially verbose per-transaction details
       //   end
       //   finish_item(m_req);

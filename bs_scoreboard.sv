@@ -35,9 +35,9 @@ class bs_scoreboard #(
             return;
         end
 
-        `uvm_info(get_type_name(), 
-                  $sformatf("Comparing transaction: DataIn=0x%h, ShiftAmt=0x%h, Actual DO=0x%h, Expected DO=0x%h", 
-                            trans.data_in, trans.shift_amount, trans.data_out, trans.expected_data_out), 
+        `uvm_info(get_type_name(),
+                  $sformatf("Comparing transaction: DataIn=0x%h, ShiftAmt=0x%h, Actual DO=0x%h, Expected DO=0x%h",
+                            trans.data_in, trans.shift_amount, trans.data_out, trans.expected_data_out),
                   UVM_HIGH) // UVM_HIGH for potentially verbose per-transaction comparison details
 
         // Compare actual DUT output (trans.data_out) with expected output (trans.expected_data_out)
@@ -45,13 +45,13 @@ class bs_scoreboard #(
         // when the transaction was created by a sequence.
         // trans.data_out should have been populated by the monitor with the actual DUT output.
         if (trans.data_out == trans.expected_data_out) begin
-            `uvm_info(get_type_name(), 
-                      $sformatf("PASSED: Transaction details: %s", trans.convert2string()), 
+            `uvm_info(get_type_name(),
+                      $sformatf("PASSED: Transaction details: %s", trans.convert2string()),
                       UVM_MEDIUM) // UVM_MEDIUM for passed transaction details
             m_passed_items++;
         end else begin
-            `uvm_error(get_type_name(), 
-                       $sformatf("FAILED: Actual DO: 0x%h != Expected DO: 0x%h. Transaction: %s", 
+            `uvm_error(get_type_name(),
+                       $sformatf("FAILED: Actual DO: 0x%h != Expected DO: 0x%h. Transaction: %s",
                                  trans.data_out, trans.expected_data_out, trans.convert2string()))
             m_failed_items++;
         end

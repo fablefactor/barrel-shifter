@@ -12,7 +12,7 @@ class bs_single_item_sequence #(
   // rand logic [DATA_WIDTH-1:0] fixed_data_in;
   // localparam SA_WIDTH = ($clog2(DATA_WIDTH)>0?$clog2(DATA_WIDTH):1);
   // rand logic [SA_WIDTH-1:0] fixed_shift_amount;
-  // constraint use_fixed_values_cons { 
+  // constraint use_fixed_values_cons {
   //   solve fixed_data_in before data_in; // Example of solving order
   //   if (use_fixed_knobs) { // Assuming a 'use_fixed_knobs' boolean control
   //     data_in == fixed_data_in;
@@ -28,7 +28,7 @@ class bs_single_item_sequence #(
 
   virtual task body();
     bs_transaction#(DATA_WIDTH) m_req; // Local handle for the transaction
-    
+
     `uvm_info(get_type_name(), "Starting single item sequence body.", UVM_MEDIUM)
 
     // Create the transaction object using the UVM macro.
@@ -45,7 +45,7 @@ class bs_single_item_sequence #(
 
     // Start the item, indicating that m_req is ready to be processed by the driver.
     // The call to start_item() is blocking if the sequencer's arbitration queue is full.
-    start_item(m_req); 
+    start_item(m_req);
 
     // Randomize the transaction.
     if (!m_req.randomize()) begin

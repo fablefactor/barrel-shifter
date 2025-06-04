@@ -28,7 +28,7 @@ module tb_top;
 
   // Instantiate the interface
   // The interface is parameterized with P_DATA_WIDTH from tb_top
-  bs_if #(P_DATA_WIDTH) dut_if(clk); 
+  bs_if #(P_DATA_WIDTH) dut_if(clk);
   // Connect reset to the interface instance
   assign dut_if.reset_n = reset_n;
 

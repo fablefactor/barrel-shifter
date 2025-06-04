@@ -3,7 +3,7 @@
 
 ## 1. Project Overview
 
-This project implements a synthesizable, pipelined Verilog barrel shifter module capable of performing rotate left operations. The data bus width and the number of pipeline stages are parameterized. 
+This project implements a synthesizable, pipelined Verilog barrel shifter module capable of performing rotate left operations. The data bus width and the number of pipeline stages are parameterized.
 A comprehensive UVM (Universal Verification Methodology) testbench is provided to verify the shifter's functionality across various configurations and scenarios. The testbench includes a suite of tests and can be run using the provided Makefile with Synopsys VCS.
 
 ## 2. Barrel Shifter RTL (`barrel_shifter.v`)

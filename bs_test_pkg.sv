@@ -4,12 +4,12 @@ package bs_test_pkg;
 
   // Environment Components
   `include "bs_transaction.sv"
-  `include "bs_sequencer.sv" 
-  `include "bs_driver.sv"    
-  `include "bs_monitor.sv"   
-  `include "bs_agent.sv"     
+  `include "bs_sequencer.sv"
+  `include "bs_driver.sv"
+  `include "bs_monitor.sv"
+  `include "bs_agent.sv"
   `include "bs_scoreboard.sv"
-  `include "bs_env.sv"       
+  `include "bs_env.sv"
 
   // Sequence Classes
   `include "bs_single_item_sequence.sv"

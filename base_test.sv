@@ -32,7 +32,7 @@ class barrel_shifter_base_test extends uvm_test;
     if (cfg_dut_data_width <= 0) begin
       `uvm_fatal(get_type_name(), $sformatf("[%s] Configured 'dut_data_width' (%0d) must be greater than 0.", current_test_name, cfg_dut_data_width))
     end
-    
+
     // dut_num_stages from DUT Verilog can be 0 (treated as 1 stage/cycle latency by DUT).
     // Calculate effective latency for the monitor based on DUT's NUM_STAGES parameter.
     // If DUT NUM_STAGES is 0, effective latency is 1. Otherwise, it's NUM_STAGES.
@@ -42,11 +42,11 @@ class barrel_shifter_base_test extends uvm_test;
     // cfg_effective_latency = (cfg_dut_num_stages <= 0) ? 1 : cfg_dut_num_stages;
     // Given Verilog parameter constraints, NUM_STAGES>=0 is expected.
 
-    `uvm_info(get_type_name(), 
+    `uvm_info(get_type_name(),
               $sformatf("[%s] Test Configuration: DUT_DATA_WIDTH=%0d, DUT_NUM_STAGES_PARAM=%0d, Effective Monitor Latency=%0d.",
                         current_test_name, cfg_dut_data_width, cfg_dut_num_stages, cfg_effective_latency), UVM_LOW);
-    
-    // Derived tests will use cfg_dut_data_width and cfg_effective_latency 
+
+    // Derived tests will use cfg_dut_data_width and cfg_effective_latency
     // to instantiate a bs_env#(cfg_dut_data_width, cfg_effective_latency).
     // They will also set these parameters into the uvm_config_db for the env to pick up
     // if the env itself needs them for some reason (though bs_env uses its own parameters).
@@ -57,7 +57,7 @@ class barrel_shifter_base_test extends uvm_test;
     phase.raise_objection(this, {get_full_name(), " base test starting now"});
     // A minimal delay to keep simulation alive if no sequences are run by derived tests
     // or if derived test forgets to call super.run_phase() but doesn't implement its own objection.
-    #100ns; 
+    #100ns;
     phase.drop_objection(this, {get_full_name(), " base test finishing now"});
   endtask
 

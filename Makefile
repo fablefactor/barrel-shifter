@@ -11,12 +11,12 @@ DUT_FILES = barrel_shifter.v
 IF_FILES = bs_if.sv
 TB_TOP_FILES = tb_top.sv
 # UVM package includes all other .sv files for the testbench
-UVM_PKG_FILES = bs_test_pkg.sv 
+UVM_PKG_FILES = bs_test_pkg.sv
 
 # All SV files for compilation. Order matters for packages.
 VERILOG_SOURCES = $(DUT_FILES)
 # bs_test_pkg.sv includes other .sv files. tb_top needs bs_test_pkg and bs_if.
-SV_SOURCES = $(IF_FILES) $(UVM_PKG_FILES) $(TB_TOP_FILES) 
+SV_SOURCES = $(IF_FILES) $(UVM_PKG_FILES) $(TB_TOP_FILES)
 
 # VCS Compile Options
 # -lca for UVM/SystemVerilog link-time checks and optimizations.

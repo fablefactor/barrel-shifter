@@ -6,7 +6,7 @@ class bs_max_shift_sequence #(
 
   `uvm_object_param_utils(bs_max_shift_sequence#(DATA_WIDTH))
 
-  int num_transactions = 10; 
+  int num_transactions = 10;
 
   function new(string name = "bs_max_shift_sequence");
     super.new(name);
@@ -28,10 +28,10 @@ class bs_max_shift_sequence #(
     end else if (DATA_WIDTH > 1) begin
       target_max_shift = DATA_WIDTH - 1;
     end else begin // DATA_WIDTH = 0 or negative (invalid, defensive)
-      target_max_shift = 0; 
+      target_max_shift = 0;
       `uvm_warning(get_type_name(), $sformatf("DATA_WIDTH is %0d, which is invalid. Setting target_max_shift to 0.", DATA_WIDTH))
     end
-    
+
     if (num_transactions <= 0) begin
       `uvm_warning(get_type_name(), $sformatf("num_transactions is %0d, sequence will not send any items.", num_transactions))
       return;
@@ -42,7 +42,7 @@ class bs_max_shift_sequence #(
     for (int i = 0; i < num_transactions; i++) begin
       `uvm_create(m_req)
       start_item(m_req);
-      if (!m_req.randomize() with { shift_amount == target_max_shift; }) begin 
+      if (!m_req.randomize() with { shift_amount == target_max_shift; }) begin
         `uvm_error(get_type_name(), $sformatf("Failed to randomize transaction with shift_amount == %0d", target_max_shift))
       end else begin
         `uvm_info(get_type_name(), $sformatf("Sent max_shift transaction %0d/%0d: %s", i+1, num_transactions, m_req.convert2string()), UVM_HIGH)
