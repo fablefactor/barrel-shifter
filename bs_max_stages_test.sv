@@ -8,6 +8,7 @@ class bs_max_stages_test extends barrel_shifter_base_test;
   // Test-specific parameters
   local static const int THIS_TEST_DATA_WIDTH = 32;
   local static const int THIS_TEST_NUM_STAGES = 5;  // Test with 5 pipeline stages
+  localparam TEST_SPECIFIC_EFFECTIVE_LATENCY = (THIS_TEST_NUM_STAGES == 0) ? 1 : THIS_TEST_NUM_STAGES;
   int num_sequence_transactions = 100;
 
   function new(string name = "bs_max_stages_test", uvm_component parent = null);
@@ -41,10 +42,7 @@ class bs_max_stages_test extends barrel_shifter_base_test;
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    // Localparam for effective latency, ensuring it's based on this test's compile-time constants
-    localparam TEST_SPECIFIC_EFFECTIVE_LATENCY = (THIS_TEST_NUM_STAGES == 0) ? 1 : THIS_TEST_NUM_STAGES;
-
-    // cfg_dut_data_width is THIS_TEST_DATA_WIDTH. TEST_SPECIFIC_EFFECTIVE_LATENCY is based on THIS_TEST_NUM_STAGES.
+    // cfg_dut_data_width is THIS_TEST_DATA_WIDTH. TEST_SPECIFIC_EFFECTIVE_LATENCY (now a class localparam) is based on THIS_TEST_NUM_STAGES.
     bs_env #(THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY) typed_env_h;
     bs_random_stimulus_sequence#(THIS_TEST_DATA_WIDTH) seq;
     string current_test_name = get_full_name();

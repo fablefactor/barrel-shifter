@@ -10,6 +10,7 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
   // Test-specific parameters and configurations
   local static const int THIS_TEST_DATA_WIDTH = 8;
   local static const int THIS_TEST_NUM_STAGES = 1; // Example: fix stages for this test
+  localparam TEST_SPECIFIC_EFFECTIVE_LATENCY = (THIS_TEST_NUM_STAGES == 0) ? 1 : THIS_TEST_NUM_STAGES;
   int num_sequence_transactions = 50; // Default number of transactions for this test
 
   function new(string name = "bs_narrow_width_test", uvm_component parent = null);
@@ -54,11 +55,8 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
   endfunction
 
   virtual task run_phase(uvm_phase phase);
-    // Localparam for effective latency, ensuring it's based on this test's compile-time constants
-    localparam TEST_SPECIFIC_EFFECTIVE_LATENCY = (THIS_TEST_NUM_STAGES == 0) ? 1 : THIS_TEST_NUM_STAGES;
-
     // Local handle, correctly typed to match the created environment's parameterization.
-    // THIS_TEST_DATA_WIDTH is const. TEST_SPECIFIC_EFFECTIVE_LATENCY is const.
+    // THIS_TEST_DATA_WIDTH is const. TEST_SPECIFIC_EFFECTIVE_LATENCY (now a class localparam) is const.
     bs_env #(THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY) typed_env_h;
     bs_random_stimulus_sequence#(THIS_TEST_DATA_WIDTH) seq;
     string current_test_name = get_full_name();
