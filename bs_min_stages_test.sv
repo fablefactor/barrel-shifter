@@ -52,7 +52,7 @@ class bs_min_stages_test extends barrel_shifter_base_test;
               current_test_name, THIS_TEST_DATA_WIDTH, THIS_TEST_NUM_STAGES, TEST_SPECIFIC_EFFECTIVE_LATENCY, num_sequence_transactions), UVM_MEDIUM)
 
     if (!$cast(typed_env_h, m_env)) {
-      `uvm_fatal(get_type_name(), $sformatf("[%s] Failed to cast m_env to bs_env #(%0d,%0d).", current_test_name, THIS_TEST_DATA_WIDTH, TEST_SPECIFIC_EFFECTIVE_LATENCY))
+      `uvm_fatal("BS_MIN_STAGES_FATAL", "Cast failed for m_env.")
       phase.drop_objection(this, {current_test_name, " ending due to cast failure"});
       return;
     }
