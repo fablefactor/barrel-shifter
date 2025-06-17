@@ -67,7 +67,11 @@ class bs_narrow_width_test extends barrel_shifter_base_test;
 
     // Safely cast the generic m_env (type uvm_env) to the specifically parameterized bs_env type.
     if (!$cast(typed_env_h, m_env)) {
-      `uvm_fatal("BS_NARROW_FATAL", "Cast failed for m_env.")
+      string temp_fatal_id_str;
+      string temp_fatal_msg_str;
+      temp_fatal_id_str = "BS_NARROW_FATAL";
+      temp_fatal_msg_str = "Cast failed for m_env.";
+      `uvm_fatal(temp_fatal_id_str, temp_fatal_msg_str)
       phase.drop_objection(this, {current_test_name, " ending due to cast failure"}); // Drop objection before exiting
       return;
     }

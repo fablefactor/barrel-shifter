@@ -52,7 +52,11 @@ class bs_max_stages_test extends barrel_shifter_base_test;
               current_test_name, THIS_TEST_DATA_WIDTH, THIS_TEST_NUM_STAGES, TEST_SPECIFIC_EFFECTIVE_LATENCY, num_sequence_transactions), UVM_MEDIUM)
 
     if (!$cast(typed_env_h, m_env)) {
-      `uvm_fatal("BS_MAX_STAGES_FATAL", "Cast failed for m_env.")
+      string temp_fatal_id_str;
+      string temp_fatal_msg_str;
+      temp_fatal_id_str = "BS_MAX_STAGES_FATAL";
+      temp_fatal_msg_str = "Cast failed for m_env.";
+      `uvm_fatal(temp_fatal_id_str, temp_fatal_msg_str)
       phase.drop_objection(this, {current_test_name, " ending due to cast failure"});
       return;
     }
